@@ -1,0 +1,14 @@
+numpy < 1.24.0  # otherwise np.int issues
+nibabel
+scikit-optimize
+pandas
+scipy
+pingouin
+ray
+mathutils
+pillow
+matplotlib
+trimesh
+plotly
+seaborn
+statsmodels
