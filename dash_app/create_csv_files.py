@@ -1,29 +1,49 @@
 import pandas as pd
 import numpy as np
 import nibabel as nib
+import shutil
 import pickle
 import os
 import glob
 
 from src.utils import create_df_from_opt_dict, create_dirs
 
-RESULTS_PATH = "/home/odysseas/Desktop/UU/thesis/BayesianOpt/5_arrays_10x10x10/results/"
-SUBS = os.listdir(RESULTS_PATH)[:2]
+EXP1_RESULTS_PATH = "/home/odysseas/Desktop/UU/thesis/MSc_thesis/5_arrays_10x10x10/results/"
+EXP2_RESULTS_PATH = "/home/odysseas/Desktop/UU/thesis/MSc_thesis/fsaverage_5_arrays_10x10x10/results/"
+EXP3_RESULTS_PATH = "/home/odysseas/Desktop/UU/thesis/MSc_thesis/16_arrays_1x10x10/results/"
+
+SUBS = os.listdir(EXP2_RESULTS_PATH)[:2]
 
 
-def read_pickle_and_create_arrays_csv(sub: str, hem: str):
+def get_experiment(res_path: str):
+    if "5_arrays_10x10x10" in res_path and not "fsaverage" in res_path:
+        exp = "experiment1"
+    elif "fsaverage" in res_path:
+        exp = "experiment2"
+    elif "16_arrays_1x10x10" in res_path:
+        exp = "experiment3"
+    else:
+        print(f"res_path is wrong: {res_path}")
+        return None
+    return exp
+
+
+def read_pickle_and_create_arrays_csv(res_path: str, sub: str, hem: str):
     """Reads the saved pickle file and creates a csv with the x, y, z
     coordinates of the optimized arrays for the given sub and hemisphere.
 
     Parameters
     ----------
+    res_path : str
+        The path with the saved results for each experiment
     sub: str
         The subject from which we want to read the pickle file.
     hem : str
         The hemisphere from which we want to read the pickle file
     """
-    pickle_dir = RESULTS_PATH + sub + "/" + hem + "/"
-    create_dirs("assets/", sub, hem)
+    exp = get_experiment(res_path)
+    pickle_dir = res_path + sub + "/" + hem + "/"
+    create_dirs("assets/", sub, hem + f"/{exp}")
     filenames = glob.glob(os.path.join(pickle_dir, "*.pkl"))
     data = []
     if filenames:
@@ -36,8 +56,8 @@ def read_pickle_and_create_arrays_csv(sub: str, hem: str):
             print(e)
         optimized_arrays_from_f_manual = data[0]
         arrays_df = create_df_from_opt_dict(optimized_arrays_from_f_manual)
-        arrays_df.to_csv(f"./assets/{sub}/{hem}/arrays.csv", index=False)
-        print(f"Created arrays csv for {sub}/{hem}")
+        arrays_df.to_csv(f"./assets/{sub}/{hem}/{exp}/arrays.csv", index=False)
+        print(f"Created arrays csv for {sub}/{hem}/{exp}")
 
 
 def read_scans_and_create_brains_csv(sub: str):
@@ -98,7 +118,7 @@ def read_scans_and_create_brains_csv(sub: str):
         print(f"Created brain coords csv for {sub}/{hem}")
 
 
-def read_and_save_phosphenes_per_array(sub: str, hem: str):
+def read_and_save_phosphenes_per_array(res_path: str, sub: str, hem: str):
     """Aiming to read the phosphenes per array (dict),
     which is the second element in the pickled list.
     The shape of the phosphenes for a given array is (x, 3),
@@ -115,8 +135,10 @@ def read_and_save_phosphenes_per_array(sub: str, hem: str):
         [optimized_arrays_from_f_manual, phosphenes_per_arr, phosphene_map_per_arr,
         total_contacts_xyz_moved, all_phosphenes, total_phosphene_map]
     """
-    pickle_dir = RESULTS_PATH + sub + "/" + hem + "/"
-    create_dirs("assets/", sub, hem)
+    exp = get_experiment(res_path)
+
+    pickle_dir = res_path + sub + "/" + hem + "/"
+    create_dirs("assets/", sub, hem + f"/{exp}")
     filenames = glob.glob(os.path.join(pickle_dir, "*.pkl"))
     data = []
     if filenames:
@@ -132,8 +154,40 @@ def read_and_save_phosphenes_per_array(sub: str, hem: str):
             arr_phosphenes_df = pd.DataFrame(data={"x": phos.T[0, :],
                                                    "y": phos.T[1, :],
                                                    "z": phos.T[2, :]})
-            arr_phosphenes_df.to_csv(f"./assets/{sub}/{hem}/arr{arr}_phosphenes.csv", index=False)
-            print(f"Saved phospheness for {sub}/{hem} and array {arr}")
+            arr_phosphenes_df.to_csv(f"./assets/{sub}/{hem}/{exp}/arr{arr}_phosphenes.csv", index=False)
+            print(f"Saved phospheness for {sub}/{hem}/{exp} and array {arr}")
+
+
+def copy_density_picture(res_path: str, sub: str, hem: str):
+    exp = get_experiment(res_path)
+    picture_path = res_path + sub + "/" + hem + "/"
+    create_dirs("assets/", sub, hem + f"/{exp}")
+    filenames = glob.glob(os.path.join(picture_path, "*.png"))
+    if filenames:
+        try:
+            src_density_filename = [filename for filename in filenames if "H_Gaussian_KDE" in filename][0]
+            dest_path = f"./assets/{sub}/{hem}/{exp}/density_phosphenes.png"
+            shutil.copyfile(src_density_filename, dest_path)
+            print(f"Saved density picture for {sub}/{hem}/{exp}")
+
+        except Exception as e:
+            print(e)
+
+
+def copy_bin_map_picture(res_path: str, sub: str, hem: str):
+    exp = get_experiment(res_path)
+    picture_path = res_path + sub + "/" + hem + "/"
+    create_dirs("assets/", sub, hem + f"/{exp}")
+    filenames = glob.glob(os.path.join(picture_path, "*.png"))
+    if filenames:
+        try:
+            src_density_filename = [filename for filename in filenames if "H_phosphene_maps" in filename][0]
+            dest_path = f"./assets/{sub}/{hem}/{exp}/binary_maps.png"
+            shutil.copyfile(src_density_filename, dest_path)
+            print(f"Copied binary maps picture for {sub}/{hem}/{exp}")
+
+        except Exception as e:
+            print(e)
 
 
 
@@ -141,8 +195,11 @@ def main():
     for sub in SUBS:
         # read_scans_and_create_brains_csv(sub)
         for hem in ["LH", "RH"]:
-        #     read_pickle_and_create_arrays_csv(sub, hem)
-            read_and_save_phosphenes_per_array(sub, hem)
+            for exp in [EXP1_RESULTS_PATH, EXP2_RESULTS_PATH, EXP3_RESULTS_PATH]:
+                # read_pickle_and_create_arrays_csv(exp, sub, hem)
+                # read_and_save_phosphenes_per_array(exp, sub, hem)
+                # copy_density_picture(exp, sub, hem)
+                copy_bin_map_picture(res_path=exp, sub=sub, hem=hem)
 
 
 if __name__ == "__main__":
