@@ -12,7 +12,7 @@ EXP1_RESULTS_PATH = "/home/odysseas/Desktop/UU/thesis/MSc_thesis/5_arrays_10x10x
 EXP2_RESULTS_PATH = "/home/odysseas/Desktop/UU/thesis/MSc_thesis/fsaverage_5_arrays_10x10x10/results/"
 EXP3_RESULTS_PATH = "/home/odysseas/Desktop/UU/thesis/MSc_thesis/16_arrays_1x10x10/results/"
 
-SUBS = os.listdir(EXP2_RESULTS_PATH)[:2]
+SUBS = os.listdir(EXP2_RESULTS_PATH)[:20]
 
 
 def get_experiment(res_path: str):
@@ -193,12 +193,12 @@ def copy_bin_map_picture(res_path: str, sub: str, hem: str):
 
 def main():
     for sub in SUBS:
-        # read_scans_and_create_brains_csv(sub)
+        read_scans_and_create_brains_csv(sub)
         for hem in ["LH", "RH"]:
             for exp in [EXP1_RESULTS_PATH, EXP2_RESULTS_PATH, EXP3_RESULTS_PATH]:
-                # read_pickle_and_create_arrays_csv(exp, sub, hem)
-                # read_and_save_phosphenes_per_array(exp, sub, hem)
-                # copy_density_picture(exp, sub, hem)
+                read_pickle_and_create_arrays_csv(exp, sub, hem)
+                read_and_save_phosphenes_per_array(exp, sub, hem)
+                copy_density_picture(exp, sub, hem)
                 copy_bin_map_picture(res_path=exp, sub=sub, hem=hem)
 
 

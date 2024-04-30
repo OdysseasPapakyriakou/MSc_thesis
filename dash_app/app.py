@@ -1,5 +1,4 @@
 from dash import Dash, dcc, html, Input, Output
-import plotly.express as px
 
 import pandas as pd
 import os
@@ -8,14 +7,10 @@ import plotly.graph_objects as go
 
 import base64
 
-# from src.utils import visualize_kde_polar_plot
-
-from dash_app.src.utils import visualize_kde_polar_plot
-
 app = Dash(__name__)
 
 exp = "experiment1"
-subs = [int(sub) for sub in os.listdir("assets")]
+subs = sorted([int(sub) for sub in os.listdir("assets")])
 experiments = [
     {"label": "Experiment 1: Multiple 3d arrays", "value": "experiment1"},
     {"label": "Experiment 2: Individual vs. average 3d", "value": "experiment2"},
@@ -29,9 +24,11 @@ def get_n_arrays(subject: int, hem: str, experiment: str):
     return [i+1 for i in range(len(phos_files)-1)]
 
 
-
 app.layout = html.Div(style={'textAlign': 'center'}, children=[
-    html.H3("3D Arrays in LH and RH"),
+    html.Div(style={'textAlign': 'center', 'margin-top': '50px'}, children=[
+        html.H1("Welcome to my thesis"),
+        html.P("This is a visualization of my results", style={'font-size': '18px'})
+    ]),
     html.Div([
             html.P("Select experiment:"),
             dcc.Dropdown(
@@ -45,7 +42,7 @@ app.layout = html.Div(style={'textAlign': 'center'}, children=[
         dcc.Dropdown(
             id="subjects-dropdown",
             options=subs,
-            value=114823,   # default value
+            value=subs[0],   # default value
         )
     ]),
     html.Div(id="n-arrays", style={'display': 'flex', 'justify-content': 'space-between'}, children=[
@@ -78,56 +75,10 @@ app.layout = html.Div(style={'textAlign': 'center'}, children=[
             )
         ])
     ]),
-    html.Div(id="hem-graphs", style={'width': '80%', 'margin': 'auto'}, children=[
-        html.Div(style={'margin-bottom': '20px'}, children=[
-            html.H3("Title for Figures 1 and 2", style={'text-align': 'center'}),
-            html.Div(style={'width': '100%', 'display': 'flex', 'justify-content': 'space-between'}, children=[
-                html.Div(style={'display': 'inline-block', 'width': '45%', 'textAlign': 'center'}, children=[
-                    html.H4("Right Hemisphere 1"),
-                    dcc.Graph(id="lh-graph1")
-                ]),
-                html.Div(style={'display': 'inline-block', 'width': '45%', 'textAlign': 'center'}, children=[
-                    html.H4("Left Hemisphere 1"),
-                    dcc.Graph(id="rh-graph1")
-                ])
-            ])
-        ]),
-        html.Div(style={'margin-bottom': '20px'}, children=[
-            html.H3("Title for Figures 3 and 4", style={'text-align': 'center'}),
-            html.Div(style={'width': '100%', 'display': 'flex', 'justify-content': 'space-between'}, children=[
-                html.Div(style={'display': 'inline-block', 'width': '45%', 'textAlign': 'center'}, children=[
-                    html.H4("Right Hemisphere 2"),
-                    dcc.Graph(id="lh-graph2")
-                ]),
-                html.Div(style={'display': 'inline-block', 'width': '45%', 'textAlign': 'center'}, children=[
-                    html.H4("Left Hemisphere 2"),
-                    dcc.Graph(id="rh-graph2")
-                ])
-            ])
-        ])
-    ]),
+    html.Div(id="hem-graphs", style={'width': '80%', 'margin': 'auto'}, children=[]),
+    html.Div(id="map-graphs", style={'width': '80%', 'margin': 'auto'}, children=[]),
+    html.Div(id="phosphene-graphs", style={'width': '70%', 'margin': 'auto'}, children=[]),
 
-    html.Div(id="map-graphs", style={'width': '80%', 'margin': 'auto'}, children=[
-        html.Div(style={'display': 'inline-block', 'width': '48%', 'textAlign': 'center'}, children=[
-            html.H4("Left visual field map"),
-            html.Img(id="lh-bin-map-img", style={'width': '100%'})
-        ]),
-        html.Div(style={'display': 'inline-block', 'width': '48%', 'textAlign': 'center'}, children=[
-            html.H4("Right visual field map"),
-            html.Img(id="rh-bin-map-img", style={'width': '100%'})
-        ])
-    ]),
-
-    html.Div(id="phosphene-graphs", style={'width': '70%', 'margin': 'auto'}, children=[
-        html.Div(style={'display': 'inline-block', 'width': '48%', 'textAlign': 'center'}, children=[
-            html.H4("Left visual field map"),
-            html.Img(id="lh-map-img", style={'width': '100%'})
-        ]),
-        html.Div(style={'display': 'inline-block', 'width': '48%', 'textAlign': 'center'}, children=[
-            html.H4("Right visual field map"),
-            html.Img(id="rh-map-img", style={'width': '100%'})
-        ])
-    ])
 ])
 
 
