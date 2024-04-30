@@ -16,10 +16,15 @@ app = Dash(__name__)
 
 exp = "experiment1"
 subs = [int(sub) for sub in os.listdir("assets")]
+experiments = [
+    {"label": "Experiment 1: Multiple 3d arrays", "value": "experiment1"},
+    {"label": "Experiment 2: Individual vs. average 3d", "value": "experiment2"},
+    {"label": "Experiment 3: Utah vs. 3d", "value": "experiment3"}
+]
 
 
-def get_n_arrays(subject: int, hem: str):
-    all_files = os.listdir(f"assets/{subject}/{hem}/experiment1/")
+def get_n_arrays(subject: int, hem: str, experiment: str):
+    all_files = os.listdir(f"assets/{subject}/{hem}/{experiment}/")
     phos_files = [file for file in all_files if file.endswith(".csv") and file.startswith("arr")]
     return [i+1 for i in range(len(phos_files)-1)]
 
@@ -62,8 +67,123 @@ aliceblue, antiquewhite, aqua, aquamarine, azure,
             yellow, yellowgreen
 """
 
-app.layout = html.Div(style={'textAlign': 'center'}, children=[
+layout_exp2 = html.Div(style={'textAlign': 'center'}, children=[
     html.H3("3D Arrays in LH and RH"),
+    html.Div([
+            html.P("Select experiment:"),
+            dcc.Dropdown(
+                id="experiments-dropdown",
+                options=experiments,
+                value=experiments[1]["value"],   # default value
+            )
+        ]),
+    html.Div([
+        html.P("Select subject:"),
+        dcc.Dropdown(
+            id="subjects-dropdown",
+            options=subs,
+            value=114823,   # default value
+        )
+    ]),
+    html.Div(id="n-arrays", style={'display': 'flex', 'justify-content': 'space-between'}, children=[
+        html.Div(style={'flex': '50%', 'padding-right': '10px'}, children=[
+            html.P("Select the number of arrays for RH:"),
+            dcc.Dropdown(
+                id='rh-array-dropdown',
+                options=[
+                    {'label': '1', 'value': 1},
+                    {'label': '2', 'value': 2},
+                    {'label': '3', 'value': 3},
+                    {'label': '4', 'value': 4},
+                    {'label': '5', 'value': 5}
+                ],
+                value=2  # default value
+            )
+        ]),
+        html.Div(style={'flex': '50%', 'padding-left': '10px'}, children=[
+            html.P("Select the number of arrays for LH:"),
+            dcc.Dropdown(
+                id='lh-array-dropdown',
+                options=[
+                    {'label': '1', 'value': 1},
+                    {'label': '2', 'value': 2},
+                    {'label': '3', 'value': 3},
+                    {'label': '4', 'value': 4},
+                    {'label': '5', 'value': 5}
+                ],
+                value=2  # default value
+            )
+        ])
+    ]),
+    html.Div(id="hem-graphs", style={'width': '100%', 'margin': 'auto'}, children=[
+        html.Div(
+            style={'margin-bottom': '20px', 'width': '100%', 'display': 'flex', 'justify-content': 'space-between'},
+            children=[
+                html.Div(style={'flex': '1'}, children=[
+                    html.H3("Right hemisphere", style={'text-align': 'center'}),
+                    html.Div(style={'width': '100%', 'display': 'flex', 'justify-content': 'space-between'},
+                             children=[
+                                 html.Div(style={'flex': '1', 'textAlign': 'center'}, children=[
+                                     html.H4("Right hemisphere: Individualized"),
+                                     dcc.Graph(id="lh-graph1")
+                                 ]),
+                                 html.Div(style={'flex': '1', 'textAlign': 'center'}, children=[
+                                     html.H4("Right hemisphere: Average"),
+                                     dcc.Graph(id="rh-graph1")
+                                 ])
+                             ])
+                ]),
+                html.Div(style={'flex': '1'}, children=[
+                    html.H3("Left hemisphere", style={'text-align': 'center'}),
+                    html.Div(style={'width': '100%', 'display': 'flex', 'justify-content': 'space-between'},
+                             children=[
+                                 html.Div(style={'flex': '1', 'textAlign': 'center'}, children=[
+                                     html.H4("Left hemisphere: Individualized"),
+                                     dcc.Graph(id="lh-graph2")
+                                 ]),
+                                 html.Div(style={'flex': '1', 'textAlign': 'center'}, children=[
+                                     html.H4("Left hemisphere: Average"),
+                                     dcc.Graph(id="rh-graph2")
+                                 ])
+                             ])
+                ])
+            ])
+    ]),
+
+    html.Div(id="map-graphs", style={'width': '80%', 'margin': 'auto'}, children=[
+        html.Div(style={'display': 'inline-block', 'width': '48%', 'textAlign': 'center'}, children=[
+            html.H4("Left visual field map"),
+            html.Img(id="lh-bin-map-img", style={'width': '100%'})
+        ]),
+        html.Div(style={'display': 'inline-block', 'width': '48%', 'textAlign': 'center'}, children=[
+            html.H4("Right visual field map"),
+            html.Img(id="rh-bin-map-img", style={'width': '100%'})
+        ])
+    ]),
+
+    html.Div(id="phosphene-graphs", style={'width': '70%', 'margin': 'auto'}, children=[
+        html.Div(style={'display': 'inline-block', 'width': '48%', 'textAlign': 'center'}, children=[
+            html.H4("Left visual field map"),
+            html.Img(id="lh-map-img", style={'width': '100%'})
+        ]),
+        html.Div(style={'display': 'inline-block', 'width': '48%', 'textAlign': 'center'}, children=[
+            html.H4("Right visual field map"),
+            html.Img(id="rh-map-img", style={'width': '100%'})
+        ])
+    ])
+
+])
+
+layout_exp1 = html.Div(style={'textAlign': 'center'}, children=[
+    html.H3("3D Arrays in LH and RH"),
+    html.Div([
+            html.P("Select experiment:"),
+            dcc.Dropdown(
+                id="experiments-dropdown",
+                options=experiments,
+                value=experiments[0]["value"],   # default value
+            )
+        ]),
     html.Div([
         html.P("Select subject:"),
         dcc.Dropdown(
@@ -137,6 +257,118 @@ app.layout = html.Div(style={'textAlign': 'center'}, children=[
 
 ])
 
+app.layout = html.Div(style={'textAlign': 'center'}, children=[
+    html.H3("3D Arrays in LH and RH"),
+    html.Div([
+            html.P("Select experiment:"),
+            dcc.Dropdown(
+                id="experiments-dropdown",
+                options=experiments,
+                value=experiments[0]["value"],   # default value
+            )
+        ]),
+    html.Div([
+        html.P("Select subject:"),
+        dcc.Dropdown(
+            id="subjects-dropdown",
+            options=subs,
+            value=114823,   # default value
+        )
+    ]),
+    html.Div(id="n-arrays", style={'display': 'flex', 'justify-content': 'space-between'}, children=[
+        html.Div(style={'flex': '50%', 'padding-right': '10px'}, children=[
+            html.P("Select the number of arrays for RH:"),
+            dcc.Dropdown(
+                id='rh-array-dropdown',
+                options=[
+                    {'label': '1', 'value': 1},
+                    {'label': '2', 'value': 2},
+                    {'label': '3', 'value': 3},
+                    {'label': '4', 'value': 4},
+                    {'label': '5', 'value': 5}
+                ],
+                value=2  # default value
+            )
+        ]),
+        html.Div(style={'flex': '50%', 'padding-left': '10px'}, children=[
+            html.P("Select the number of arrays for LH:"),
+            dcc.Dropdown(
+                id='lh-array-dropdown',
+                options=[
+                    {'label': '1', 'value': 1},
+                    {'label': '2', 'value': 2},
+                    {'label': '3', 'value': 3},
+                    {'label': '4', 'value': 4},
+                    {'label': '5', 'value': 5}
+                ],
+                value=2  # default value
+            )
+        ])
+    ]),
+    html.Div(id="hem-graphs", style={'width': '80%', 'margin': 'auto'}, children=[
+        html.Div(style={'margin-bottom': '20px'}, children=[
+            html.H3("Title for Figures 1 and 2", style={'text-align': 'center'}),
+            html.Div(style={'width': '100%', 'display': 'flex', 'justify-content': 'space-between'}, children=[
+                html.Div(style={'display': 'inline-block', 'width': '45%', 'textAlign': 'center'}, children=[
+                    html.H4("Right Hemisphere 1"),
+                    dcc.Graph(id="lh-graph1")
+                ]),
+                html.Div(style={'display': 'inline-block', 'width': '45%', 'textAlign': 'center'}, children=[
+                    html.H4("Left Hemisphere 1"),
+                    dcc.Graph(id="rh-graph1")
+                ])
+            ])
+        ]),
+        html.Div(style={'margin-bottom': '20px'}, children=[
+            html.H3("Title for Figures 3 and 4", style={'text-align': 'center'}),
+            html.Div(style={'width': '100%', 'display': 'flex', 'justify-content': 'space-between'}, children=[
+                html.Div(style={'display': 'inline-block', 'width': '45%', 'textAlign': 'center'}, children=[
+                    html.H4("Right Hemisphere 2"),
+                    dcc.Graph(id="lh-graph2")
+                ]),
+                html.Div(style={'display': 'inline-block', 'width': '45%', 'textAlign': 'center'}, children=[
+                    html.H4("Left Hemisphere 2"),
+                    dcc.Graph(id="rh-graph2")
+                ])
+            ])
+        ])
+    ]),
+
+    # html.Div(id="hem-graphs", style={'width': '80%', 'margin': 'auto', 'display': 'flex', 'justify-content': 'space-between'}, children=[
+    #     html.Div(style={'display': 'inline-block', 'width': '40%', 'textAlign': 'center'}, children=[
+    #         html.H4("Right Hemisphere"),
+    #         dcc.Graph(id="lh-graph")
+    #     ]),
+    #     html.Div(style={'display': 'inline-block', 'width': '40%', 'textAlign': 'center'}, children=[
+    #         html.H4("Left Hemisphere"),
+    #         dcc.Graph(id="rh-graph")
+    #     ])
+    # ]),
+
+    html.Div(id="map-graphs", style={'width': '80%', 'margin': 'auto'}, children=[
+        html.Div(style={'display': 'inline-block', 'width': '48%', 'textAlign': 'center'}, children=[
+            html.H4("Left visual field map"),
+            html.Img(id="lh-bin-map-img", style={'width': '100%'})
+        ]),
+        html.Div(style={'display': 'inline-block', 'width': '48%', 'textAlign': 'center'}, children=[
+            html.H4("Right visual field map"),
+            html.Img(id="rh-bin-map-img", style={'width': '100%'})
+        ])
+    ]),
+
+    html.Div(id="phosphene-graphs", style={'width': '70%', 'margin': 'auto'}, children=[
+        html.Div(style={'display': 'inline-block', 'width': '48%', 'textAlign': 'center'}, children=[
+            html.H4("Left visual field map"),
+            html.Img(id="lh-map-img", style={'width': '100%'})
+        ]),
+        html.Div(style={'display': 'inline-block', 'width': '48%', 'textAlign': 'center'}, children=[
+            html.H4("Right visual field map"),
+            html.Img(id="rh-map-img", style={'width': '100%'})
+        ])
+    ])
+
+])
+
 
 def create_hem_graph(hem_brain_coords_df, hem_arrays_df, hem: str, sel_arrays: int):
     sel_arrays_df = pd.DataFrame()
@@ -155,14 +387,14 @@ def create_hem_graph(hem_brain_coords_df, hem_arrays_df, hem: str, sel_arrays: i
     no_v1 = hem_brain_coords_df[hem_brain_coords_df["v1"] != 1]
     fig_hem = go.Figure()
     fig_hem.add_trace(go.Scatter3d(x=no_v1["x"], y=no_v1["y"], z=no_v1["z"],
-                                  mode="markers",
-                                  name="brain area",
-                                  marker=dict(size=3, opacity=0.2, color="dimgrey")))
+                                   mode="markers",
+                                   name="brain area",
+                                   marker=dict(size=3, opacity=0.2, color="dimgrey")))
 
     fig_hem.add_trace(go.Scatter3d(x=v1_df["x"], y=v1_df["y"], z=v1_df["z"],
-                                  mode='markers',
-                                  name="v1 area",
-                                  marker=dict(size=5, opacity=0.2, color="lightblue")))
+                                   mode='markers',
+                                   name="v1 area",
+                                   marker=dict(size=5, opacity=0.2, color="lightblue")))
 
     for arr, color in color_map.items():
         df_label = sel_arrays_df[sel_arrays_df["array"] == arr]
@@ -197,101 +429,219 @@ def read_phos(subject: int, sel_arrays: int, hem: str):
     return cumulative_phos.values
 
 
-def read_map(subject: int, hem: str):
-    "/home/odysseas/Desktop/UU/thesis/MSc_thesis/dash_app/assets/114823/LH/experiment1/binary_maps.png"
-    image_path = f"./assets/{subject}/{hem}/experiment1/binary_maps.png"
-
-    # Read the image file as binary data
+def read_map(subject: int, hem: str, experiment: str):
+    image_path = f"./assets/{subject}/{hem}/{experiment}/binary_maps.png"
     with open(image_path, "rb") as img_file:
         encoded_image = base64.b64encode(img_file.read()).decode('utf-8')
 
     return encoded_image
 
+
+def read_density_map(subject: int, hem: str, experiment: str):
+    image_path = f"./assets/{subject}/{hem}/{experiment}/density_phosphenes.png"
+    with open(image_path, "rb") as img_file:
+        encoded_image = base64.b64encode(img_file.read()).decode('utf-8')
+
+    return encoded_image
+
+
+def create_n_arrays_dropdown(lh_n_arrays, rh_n_arrays, sel_arrays_lh, sel_arrays_rh):
+    return html.Div(id="n-arrays", style={'width': '100%', 'display': 'flex'}, children=[
+        html.Div(style={'flex': '50%'}, children=[
+            html.P("Select the number of arrays for RH:"),
+            dcc.Dropdown(
+                id='rh-array-dropdown',
+                options=rh_n_arrays,
+                value=sel_arrays_rh  # default value
+            )
+        ]),
+        html.Div(style={'flex': '50%'}, children=[
+            html.P("Select the number of arrays for LH:"),
+            dcc.Dropdown(
+                id='lh-array-dropdown',
+                options=lh_n_arrays,
+                value=sel_arrays_lh  # default value
+            )
+        ])
+    ])
+
+
+def create_hemisphere_graphs(fig_rh_exp1, fig_rh_exp2, fig_lh_exp1, fig_lh_exp2, experiment):
+    if experiment == "experiment2":
+        return html.Div(id="hem-graphs", style={'width': '100%', 'margin': 'auto'}, children=[
+            html.Div(style={'margin-bottom': '20px', 'width': '100%', 'display': 'flex', 'justify-content': 'space-between'}, children=[
+                html.Div(style={'flex': '1'}, children=[
+                    html.H3("Right hemisphere", style={'text-align': 'center'}),
+                    html.Div(style={'width': '100%', 'display': 'flex', 'justify-content': 'space-between'}, children=[
+                        html.Div(style={'flex': '1', 'textAlign': 'center'}, children=[
+                            html.H4("Right hemisphere: Individualized"),
+                            dcc.Graph(id="rh-ind", figure=fig_rh_exp1)
+                        ]),
+                        html.Div(style={'flex': '1', 'textAlign': 'center'}, children=[
+                            html.H4("Right hemisphere: Average"),
+                            dcc.Graph(id="rh-avg", figure=fig_rh_exp2)
+                        ])
+                    ])
+                ]),
+                html.Div(style={'flex': '1'}, children=[
+                    html.H3("Left hemisphere", style={'text-align': 'center'}),
+                    html.Div(style={'width': '100%', 'display': 'flex', 'justify-content': 'space-between'}, children=[
+                        html.Div(style={'flex': '1', 'textAlign': 'center'}, children=[
+                            html.H4("Left hemisphere: Individualized"),
+                            dcc.Graph(id="lh-ind", figure=fig_lh_exp1)
+                        ]),
+                        html.Div(style={'flex': '1', 'textAlign': 'center'}, children=[
+                            html.H4("Left hemisphere: Average"),
+                            dcc.Graph(id="lh-avg", figure=fig_lh_exp2)
+                        ])
+                    ])
+                ])
+            ])
+        ])
+    elif experiment == "experiment1":
+        return html.Div(id="hem-graphs", style={'width': '100%', 'margin': 'auto', 'display': 'flex'}, children=[
+                         html.Div(style={'display': 'inline-block', 'width': '48%', 'textAlign': 'center'}, children=[
+                             html.H4("Right Hemisphere"),
+                             dcc.Graph(id="lh-graph", figure=fig_rh_exp1, style={'width': '100%'})
+                         ]),
+                         html.Div(style={'display': 'inline-block', 'width': '48%', 'textAlign': 'center'}, children=[
+                             html.H4("Left Hemisphere"),
+                             dcc.Graph(id="rh-graph", figure=fig_lh_exp1, style={'width': '100%'})
+                         ])
+                     ])
+
+
+def create_map_graphs(map_lvf_exp1, map_lvf_exp2, map_rvf_exp1, map_rvf_exp2, experiment):
+    if experiment == "experiment2":
+        return html.Div(id="map-graphs", style={'margin': 'auto'}, children=[
+            html.Div(style={'margin-bottom': '20px', 'width': '100%', 'display': 'flex', 'justify-content': 'space-between'}, children=[
+                html.Div(style={'flex': '1'}, children=[
+                    html.H3("Left visual field binary maps", style={'text-align': 'center'}),
+                    html.Div(style={'display': 'inline-block', 'width': '100%', 'textAlign': 'center'}, children=[
+                        html.H4("Individualized"),
+                        html.Img(id="lh-map-img1", src=f"data:image/png;base64,{map_lvf_exp1}", style={'width': '100%'})
+                    ]),
+                    html.Div(style={'display': 'inline-block', 'width': '100%', 'textAlign': 'center'}, children=[
+                        html.H4("Average"),
+                        html.Img(id="rh-map-img1", src=f"data:image/png;base64,{map_lvf_exp2}", style={'width': '100%'})
+                    ])
+                ]),
+                html.Div(style={'flex': '1'}, children=[
+                    html.H3("Right visual field binary maps", style={'text-align': 'center'}),
+                    html.Div(style={'display': 'inline-block', 'width': '100%', 'textAlign': 'center'}, children=[
+                        html.H4("Individualized"),
+                        html.Img(id="lh-map-img2", src=f"data:image/png;base64,{map_rvf_exp1}", style={'width': '100%'})
+                    ]),
+                    html.Div(style={'display': 'inline-block', 'width': '100%', 'textAlign': 'center'}, children=[
+                        html.H4("Average"),
+                        html.Img(id="rh-map-img2", src=f"data:image/png;base64,{map_rvf_exp2}", style={'width': '100%'})
+                    ])
+                ])
+            ])
+        ])
+    elif experiment == "experiment1":
+        return html.Div(id="map-graphs", style={'margin': 'auto'}, children=[
+                html.Div(style={'display': 'inline-block', 'width': '50%', 'textAlign': 'center'}, children=[
+                    html.H4("Left visual field binary map"),
+                    html.Img(id="lh-map-img", src=f"data:image/png;base64,{map_lvf_exp1}", style={'width': '100%'})
+                ]),
+                html.Div(style={'display': 'inline-block', 'width': '50%', 'textAlign': 'center'}, children=[
+                    html.H4("Right visual field binary map"),
+                    html.Img(id="rh-map-img", src=f"data:image/png;base64,{map_rvf_exp1}", style={'width': '100%'})
+                ])
+            ])
+
+
+def create_phosphene_graphs(density_lvf_exp1, density_lvf_exp2, density_rvf_exp1, density_rvf_exp2, experiment):
+    if experiment == "experiment2":
+        return html.Div(id="phosphene-graphs", style={'margin': 'auto'}, children=[
+            html.Div(style={'margin-bottom': '20px', 'width': '100%', 'display': 'flex', 'justify-content': 'space-between'}, children=[
+                html.Div(style={'flex': '1'}, children=[
+                    html.H3("Left visual field density maps", style={'text-align': 'center'}),
+                    html.Div(style={'display': 'inline-block', 'width': '50%', 'textAlign': 'center'}, children=[
+                        html.H4("Individualized"),
+                        html.Img(id="lh-map-img1", src=f"data:image/png;base64,{density_lvf_exp1}", style={'width': '100%'})
+                    ]),
+                    html.Div(style={'display': 'inline-block', 'width': '50%', 'textAlign': 'center'}, children=[
+                        html.H4("Average"),
+                        html.Img(id="rh-map-img1", src=f"data:image/png;base64,{density_lvf_exp2}", style={'width': '100%'})
+                    ])
+                ]),
+                html.Div(style={'flex': '1'}, children=[
+                    html.H3("Right visual field density maps", style={'text-align': 'center'}),
+                    html.Div(style={'display': 'inline-block', 'width': '50%', 'textAlign': 'center'}, children=[
+                        html.H4("Individualized"),
+                        html.Img(id="lh-map-img2", src=f"data:image/png;base64,{density_rvf_exp1}", style={'width': '100%'})
+                    ]),
+                    html.Div(style={'display': 'inline-block', 'width': '50%', 'textAlign': 'center'}, children=[
+                        html.H4("Average"),
+                        html.Img(id="rh-map-img2", src=f"data:image/png;base64,{density_rvf_exp2}", style={'width': '100%'})
+                    ])
+                ])
+            ])
+        ])
+    elif experiment == "experiment1":
+        return html.Div(id="phosphene-graphs", style={'margin': 'auto'}, children=[
+                html.Div(style={'display': 'inline-block', 'width': '40%', 'textAlign': 'center'}, children=[
+                    html.H4("Left visual field map"),
+                    html.Img(id="lh-map-img", src=f"data:image/png;base64,{density_lvf_exp1}", style={'width': '100%'})
+                ]),
+                html.Div(style={'display': 'inline-block', 'width': '40%', 'textAlign': 'center'}, children=[
+                    html.H4("Right visual field map"),
+                    html.Img(id="rh-map-img", src=f"data:image/png;base64,{density_rvf_exp1}", style={'width': '100%'})
+                ])
+            ])
+
 @app.callback(
-    Output('n-arrays', 'children'),
-    Output('hem-graphs', 'children'),
-    Output('map-graphs', 'children'),
-    Output('phosphene-graphs', 'children'),
+    [Output('n-arrays', 'children'),
+     Output('hem-graphs', 'children'),
+     Output('map-graphs', 'children'),
+     Output('phosphene-graphs', 'children')],
+    [Input('experiments-dropdown', 'value')],
     [Input('subjects-dropdown', 'value')],
     [Input('lh-array-dropdown', 'value')],
     [Input('rh-array-dropdown', 'value')]
 )
-def update_graph(subject, sel_arrays_lh, sel_arrays_rh):
-    lh_n_arrays = get_n_arrays(subject, "LH")
-    rh_n_arrays = get_n_arrays(subject, "RH")
+def update_graph(sel_experiment, subject, sel_arrays_lh, sel_arrays_rh):
+    print(sel_experiment)
+    lh_n_arrays = get_n_arrays(subject, "LH", "experiment1")
+    rh_n_arrays = get_n_arrays(subject, "RH", "experiment1")
 
     # general
     lh_brain = pd.read_csv(f"assets/{subject}/LH/brain_coords.csv")
     rh_brain = pd.read_csv(f"assets/{subject}/RH/brain_coords.csv")
+
     # per experiment
-    lh_arrays = pd.read_csv(f"assets/{subject}/LH/{exp}/arrays.csv")
-    rh_arrays = pd.read_csv(f"assets/{subject}/RH/{exp}/arrays.csv")
+    lh_arrays_exp1 = pd.read_csv(f"assets/{subject}/LH/experiment1/arrays.csv")
+    rh_arrays_exp1 = pd.read_csv(f"assets/{subject}/RH/experiment1/arrays.csv")
 
-    fig_rh = create_hem_graph(rh_brain, rh_arrays, hem="RH", sel_arrays=sel_arrays_rh)
-    fig_lh = create_hem_graph(lh_brain, lh_arrays, hem="LH", sel_arrays=sel_arrays_lh)
+    lh_arrays_exp2 = pd.read_csv(f"assets/{subject}/LH/experiment2/arrays.csv")
+    rh_arrays_exp2 = pd.read_csv(f"assets/{subject}/RH/experiment2/arrays.csv")
 
-    map_lvf = read_map(subject, "RH")
-    map_rvf = read_map(subject, "LH")
+    fig_rh_epx1 = create_hem_graph(rh_brain, rh_arrays_exp1, hem="RH", sel_arrays=sel_arrays_rh)
+    fig_lh_exp1 = create_hem_graph(lh_brain, lh_arrays_exp1, hem="LH", sel_arrays=sel_arrays_lh)
 
-    lh_phos = read_phos(subject, sel_arrays_lh, hem="LH")
-    rh_phos = read_phos(subject, sel_arrays_rh, hem="RH")
+    fig_rh_epx2 = create_hem_graph(rh_brain, rh_arrays_exp2, hem="RH", sel_arrays=sel_arrays_rh)
+    fig_lh_exp2 = create_hem_graph(lh_brain, lh_arrays_exp2, hem="LH", sel_arrays=sel_arrays_lh)
 
-    rvf_phos_encoded = visualize_kde_polar_plot(lh_phos, subject, hem="LH", sel_arrays=sel_arrays_lh)
-    lvf_phos_encoded = visualize_kde_polar_plot(rh_phos, subject, hem="RH", sel_arrays=sel_arrays_rh)
+    map_lvf_exp1 = read_map(subject, "RH", "experiment1")
+    map_rvf_exp1 = read_map(subject, "LH", "experiment1")
 
-    return [
-        html.Div(id="n-arrays", style={'width': '100%', 'display': 'flex'}, children=[
-            html.Div(style={'flex': '50%'}, children=[
-                html.P("Select the number of arrays for RH:"),
-                dcc.Dropdown(
-                    id='rh-array-dropdown',
-                    options=rh_n_arrays,
-                    value=sel_arrays_rh  # default value
-                )
-            ]),
-            html.Div(style={'flex': '50%'}, children=[
-                html.P("Select the number of arrays for LH:"),
-                dcc.Dropdown(
-                    id='lh-array-dropdown',
-                    options=lh_n_arrays,
-                    value=sel_arrays_lh  # default value
-                )
-            ])
-        ]),
-        html.Div(id="hem-graphs", style={'width': '100%', 'margin': 'auto', 'display': 'flex'},
-                 children=[
-                     html.Div(style={'display': 'inline-block', 'width': '48%', 'textAlign': 'center'}, children=[
-                         html.H4("Right Hemisphere"),
-                         dcc.Graph(id="lh-graph", figure=fig_rh, style={'width': '100%'})
-                     ]),
-                     html.Div(style={'display': 'inline-block', 'width': '48%', 'textAlign': 'center'}, children=[
-                         html.H4("Left Hemisphere"),
-                         dcc.Graph(id="rh-graph", figure=fig_lh, style={'width': '100%'})
-                     ])
-                 ]),
+    map_lvf_exp2 = read_map(subject, "RH", "experiment2")
+    map_rvf_exp2 = read_map(subject, "LH", "experiment2")
 
-        html.Div(id="map-graphs", style={'margin': 'auto'}, children=[
-            html.Div(style={'display': 'inline-block', 'width': '48%', 'textAlign': 'center'}, children=[
-                html.H4("Left visual field binary map"),
-                html.Img(id="lh-map-img", src=f"data:image/png;base64,{map_lvf}", style={'width': '100%'})
-            ]),
-            html.Div(style={'display': 'inline-block', 'width': '48%', 'textAlign': 'center'}, children=[
-                html.H4("Right visual field binary map"),
-                html.Img(id="rh-map-img", src=f"data:image/png;base64,{map_rvf}", style={'width': '100%'})
-            ])
-        ]),
+    density_lvf_exp1 = read_density_map(subject, "RH", "experiment1")
+    density_rvf_exp1 = read_density_map(subject, "LH", "experiment1")
 
-        html.Div(id="phosphene-graphs", style={'margin': 'auto'}, children=[
-            html.Div(style={'display': 'inline-block', 'width': '48%', 'textAlign': 'center'}, children=[
-                html.H4("Left visual field map"),
-                html.Img(id="lh-map-img", src=f"data:image/png;base64,{lvf_phos_encoded}", style={'width': '100%'})
-            ]),
-            html.Div(style={'display': 'inline-block', 'width': '48%', 'textAlign': 'center'}, children=[
-                html.H4("Right visual field map"),
-                html.Img(id="rh-map-img", src=f"data:image/png;base64,{rvf_phos_encoded}", style={'width': '100%'})
-            ])
-        ])
-    ]
+    density_lvf_exp2 = read_density_map(subject, "RH", "experiment2")
+    density_rvf_exp2 = read_density_map(subject, "LH", "experiment2")
+
+    return (
+        create_n_arrays_dropdown(lh_n_arrays, rh_n_arrays, sel_arrays_lh, sel_arrays_rh),
+        create_hemisphere_graphs(fig_rh_epx1, fig_rh_epx2, fig_lh_exp1, fig_lh_exp2, sel_experiment),
+        create_map_graphs(map_lvf_exp1, map_lvf_exp2, map_rvf_exp1, map_rvf_exp2, sel_experiment),
+        create_phosphene_graphs(density_lvf_exp1, density_lvf_exp2, density_rvf_exp1, density_rvf_exp2, sel_experiment)
+    )
 
 
 if __name__ == '__main__':
