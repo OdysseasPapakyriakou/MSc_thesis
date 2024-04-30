@@ -19,7 +19,7 @@ subs = [int(sub) for sub in os.listdir("assets")]
 experiments = [
     {"label": "Experiment 1: Multiple 3d arrays", "value": "experiment1"},
     {"label": "Experiment 2: Individual vs. average 3d", "value": "experiment2"},
-    {"label": "Experiment 3: Utah vs. 3d", "value": "experiment3"}
+    {"label": "Experiment 3: 5x3d vs 16xUtah", "value": "experiment3"}
 ]
 
 
@@ -29,43 +29,6 @@ def get_n_arrays(subject: int, hem: str, experiment: str):
     return [i+1 for i in range(len(phos_files)-1)]
 
 
-"""
-aliceblue, antiquewhite, aqua, aquamarine, azure,
-            beige, bisque, black, blanchedalmond, blue,
-            blueviolet, brown, burlywood, cadetblue,
-            chartreuse, chocolate, coral, cornflowerblue,
-            cornsilk, crimson, cyan, darkblue, darkcyan,
-            darkgoldenrod, darkgray, darkgrey, darkgreen,
-            darkkhaki, darkmagenta, darkolivegreen, darkorange,
-            darkorchid, darkred, darksalmon, darkseagreen,
-            darkslateblue, darkslategray, darkslategrey,
-            darkturquoise, darkviolet, deeppink, deepskyblue,
-            dimgray, dimgrey, dodgerblue, firebrick,
-            floralwhite, forestgreen, fuchsia, gainsboro,
-            ghostwhite, gold, goldenrod, gray, grey, green,
-            greenyellow, honeydew, hotpink, indianred, indigo,
-            ivory, khaki, lavender, lavenderblush, lawngreen,
-            lemonchiffon, lightblue, lightcoral, lightcyan,
-            lightgoldenrodyellow, lightgray, lightgrey,
-            lightgreen, lightpink, lightsalmon, lightseagreen,
-            lightskyblue, lightslategray, lightslategrey,
-            lightsteelblue, lightyellow, lime, limegreen,
-            linen, magenta, maroon, mediumaquamarine,
-            mediumblue, mediumorchid, mediumpurple,
-            mediumseagreen, mediumslateblue, mediumspringgreen,
-            mediumturquoise, mediumvioletred, midnightblue,
-            mintcream, mistyrose, moccasin, navajowhite, navy,
-            oldlace, olive, olivedrab, orange, orangered,
-            orchid, palegoldenrod, palegreen, paleturquoise,
-            palevioletred, papayawhip, peachpuff, peru, pink,
-            plum, powderblue, purple, red, rosybrown,
-            royalblue, rebeccapurple, saddlebrown, salmon,
-            sandybrown, seagreen, seashell, sienna, silver,
-            skyblue, slateblue, slategray, slategrey, snow,
-            springgreen, steelblue, tan, teal, thistle, tomato,
-            turquoise, violet, wheat, white, whitesmoke,
-            yellow, yellowgreen
-"""
 
 app.layout = html.Div(style={'textAlign': 'center'}, children=[
     html.H3("3D Arrays in LH and RH"),
@@ -165,7 +128,6 @@ app.layout = html.Div(style={'textAlign': 'center'}, children=[
             html.Img(id="rh-map-img", style={'width': '100%'})
         ])
     ])
-
 ])
 
 
@@ -176,7 +138,9 @@ def create_hem_graph(hem_brain_coords_df, hem_arrays_df, hem: str, sel_arrays: i
         arr_df = hem_arrays_df[hem_arrays_df["array"] == array]
         sel_arrays_df = pd.concat([sel_arrays_df, arr_df], axis=0, ignore_index=True)
 
-    colors = ["green", "purple", "deeppink", "yellow", "maroon", "darkorange"]
+    colors = ["black", "white", "red", "green", "darkturquoise", "yellow", "cyan", "magenta",
+              "orange", "purple", "lime", "pink", "teal", "lavender", "darkorange", "brown"]
+
     color_map = {
         label: colors[i]
         for i, label in enumerate(sel_arrays_df["array"].unique())
@@ -209,12 +173,11 @@ def create_hem_graph(hem_brain_coords_df, hem_arrays_df, hem: str, sel_arrays: i
     if hem == "LH":
         fig_hem.update_layout(margin={"l": 0, "r": 0, "b": 50, "t": 50},
                               title={"x": 0.5, "font": {"size": 20}},
-                              legend=dict(x=0.2, y=1, xanchor='center'))
+                              legend=dict(x=1.02, y=1, xanchor='center'))
     elif hem == "RH":
         fig_hem.update_layout(margin={"l": 0, "r": 0, "b": 50, "t": 50},
                               title={"x": 0.5, "font": {"size": 20}},
-                              legend=dict(x=0.8, y=1, xanchor='center'))
-
+                              legend=dict(x=0.02, y=1, xanchor='center'))
     return fig_hem
 
 
@@ -265,39 +228,8 @@ def create_n_arrays_dropdown(lh_n_arrays, rh_n_arrays, sel_arrays_lh, sel_arrays
     ])
 
 
-def create_hemisphere_graphs(fig_rh_exp1, fig_rh_exp2, fig_lh_exp1, fig_lh_exp2, experiment):
-    if experiment == "experiment2":
-        return html.Div(id="hem-graphs", style={'width': '100%', 'margin': 'auto'}, children=[
-            html.Div(style={'margin-bottom': '20px', 'width': '100%', 'display': 'flex', 'justify-content': 'space-between'}, children=[
-                html.Div(style={'flex': '1'}, children=[
-                    html.H3("Right hemisphere", style={'text-align': 'center'}),
-                    html.Div(style={'width': '100%', 'display': 'flex', 'justify-content': 'space-between'}, children=[
-                        html.Div(style={'flex': '1', 'textAlign': 'center'}, children=[
-                            html.H4("Right hemisphere: Individualized"),
-                            dcc.Graph(id="rh-ind", figure=fig_rh_exp1)
-                        ]),
-                        html.Div(style={'flex': '1', 'textAlign': 'center'}, children=[
-                            html.H4("Right hemisphere: Average"),
-                            dcc.Graph(id="rh-avg", figure=fig_rh_exp2)
-                        ])
-                    ])
-                ]),
-                html.Div(style={'flex': '1'}, children=[
-                    html.H3("Left hemisphere", style={'text-align': 'center'}),
-                    html.Div(style={'width': '100%', 'display': 'flex', 'justify-content': 'space-between'}, children=[
-                        html.Div(style={'flex': '1', 'textAlign': 'center'}, children=[
-                            html.H4("Left hemisphere: Individualized"),
-                            dcc.Graph(id="lh-ind", figure=fig_lh_exp1)
-                        ]),
-                        html.Div(style={'flex': '1', 'textAlign': 'center'}, children=[
-                            html.H4("Left hemisphere: Average"),
-                            dcc.Graph(id="lh-avg", figure=fig_lh_exp2)
-                        ])
-                    ])
-                ])
-            ])
-        ])
-    elif experiment == "experiment1":
+def create_hemisphere_graphs(fig_rh_exp1, fig_rh_comparison, fig_lh_exp1, fig_lh_comparison, experiment):
+    if experiment == "experiment1":
         return html.Div(id="hem-graphs", style={'width': '100%', 'margin': 'auto', 'display': 'flex'}, children=[
                          html.Div(style={'display': 'inline-block', 'width': '48%', 'textAlign': 'center'}, children=[
                              html.H4("Right Hemisphere"),
@@ -308,37 +240,47 @@ def create_hemisphere_graphs(fig_rh_exp1, fig_rh_exp2, fig_lh_exp1, fig_lh_exp2,
                              dcc.Graph(id="rh-graph", figure=fig_lh_exp1, style={'width': '100%'})
                          ])
                      ])
-
-
-def create_map_graphs(map_lvf_exp1, map_lvf_exp2, map_rvf_exp1, map_rvf_exp2, experiment):
-    if experiment == "experiment2":
-        return html.Div(id="map-graphs", style={'margin': 'auto'}, children=[
+    else:
+        if experiment == "experiment2":
+            title_3d_exp1 = "Individualized"
+            title_3d_comparison = "Average"
+        else:
+            title_3d_exp1 = "3d"
+            title_3d_comparison = "Utah"
+        return html.Div(id="hem-graphs", style={'width': '100%', 'margin': 'auto'}, children=[
             html.Div(style={'margin-bottom': '20px', 'width': '100%', 'display': 'flex', 'justify-content': 'space-between'}, children=[
                 html.Div(style={'flex': '1'}, children=[
-                    html.H3("Left visual field binary maps", style={'text-align': 'center'}),
-                    html.Div(style={'display': 'inline-block', 'width': '100%', 'textAlign': 'center'}, children=[
-                        html.H4("Individualized"),
-                        html.Img(id="lh-map-img1", src=f"data:image/png;base64,{map_lvf_exp1}", style={'width': '100%'})
-                    ]),
-                    html.Div(style={'display': 'inline-block', 'width': '100%', 'textAlign': 'center'}, children=[
-                        html.H4("Average"),
-                        html.Img(id="rh-map-img1", src=f"data:image/png;base64,{map_lvf_exp2}", style={'width': '100%'})
+                    html.H3("Right hemisphere", style={'text-align': 'center'}),
+                    html.Div(style={'width': '100%', 'display': 'flex', 'justify-content': 'space-between'}, children=[
+                        html.Div(style={'flex': '1', 'textAlign': 'center'}, children=[
+                            html.H4(title_3d_exp1),
+                            dcc.Graph(id="rh-ind", figure=fig_rh_exp1)
+                        ]),
+                        html.Div(style={'flex': '1', 'textAlign': 'center'}, children=[
+                            html.H4(title_3d_comparison),
+                            dcc.Graph(id="rh-avg", figure=fig_rh_comparison)
+                        ])
                     ])
                 ]),
                 html.Div(style={'flex': '1'}, children=[
-                    html.H3("Right visual field binary maps", style={'text-align': 'center'}),
-                    html.Div(style={'display': 'inline-block', 'width': '100%', 'textAlign': 'center'}, children=[
-                        html.H4("Individualized"),
-                        html.Img(id="lh-map-img2", src=f"data:image/png;base64,{map_rvf_exp1}", style={'width': '100%'})
-                    ]),
-                    html.Div(style={'display': 'inline-block', 'width': '100%', 'textAlign': 'center'}, children=[
-                        html.H4("Average"),
-                        html.Img(id="rh-map-img2", src=f"data:image/png;base64,{map_rvf_exp2}", style={'width': '100%'})
+                    html.H3("Left hemisphere", style={'text-align': 'center'}),
+                    html.Div(style={'width': '100%', 'display': 'flex', 'justify-content': 'space-between'}, children=[
+                        html.Div(style={'flex': '1', 'textAlign': 'center'}, children=[
+                            html.H4(title_3d_exp1),
+                            dcc.Graph(id="lh-ind", figure=fig_lh_exp1)
+                        ]),
+                        html.Div(style={'flex': '1', 'textAlign': 'center'}, children=[
+                            html.H4(title_3d_comparison),
+                            dcc.Graph(id="lh-avg", figure=fig_lh_comparison)
+                        ])
                     ])
                 ])
             ])
         ])
-    elif experiment == "experiment1":
+
+
+def create_map_graphs(map_lvf_exp1, map_lvf_exp2, map_rvf_exp1, map_rvf_exp2, experiment):
+    if experiment == "experiment1":
         return html.Div(id="map-graphs", style={'margin': 'auto'}, children=[
                 html.Div(style={'display': 'inline-block', 'width': '50%', 'textAlign': 'center'}, children=[
                     html.H4("Left visual field binary map"),
@@ -349,37 +291,43 @@ def create_map_graphs(map_lvf_exp1, map_lvf_exp2, map_rvf_exp1, map_rvf_exp2, ex
                     html.Img(id="rh-map-img", src=f"data:image/png;base64,{map_rvf_exp1}", style={'width': '100%'})
                 ])
             ])
-
-
-def create_phosphene_graphs(density_lvf_exp1, density_lvf_exp2, density_rvf_exp1, density_rvf_exp2, experiment):
-    if experiment == "experiment2":
-        return html.Div(id="phosphene-graphs", style={'margin': 'auto'}, children=[
+    else:
+        if experiment == "experiment2":
+            title_3d_exp1 = "Individualized"
+            title_3d_comparison = "Average"
+        else:
+            title_3d_exp1 = "3d"
+            title_3d_comparison = "Utah"
+        return html.Div(id="map-graphs", style={'margin': 'auto'}, children=[
             html.Div(style={'margin-bottom': '20px', 'width': '100%', 'display': 'flex', 'justify-content': 'space-between'}, children=[
                 html.Div(style={'flex': '1'}, children=[
-                    html.H3("Left visual field density maps", style={'text-align': 'center'}),
-                    html.Div(style={'display': 'inline-block', 'width': '50%', 'textAlign': 'center'}, children=[
-                        html.H4("Individualized"),
-                        html.Img(id="lh-map-img1", src=f"data:image/png;base64,{density_lvf_exp1}", style={'width': '100%'})
+                    html.H3("Left visual field binary maps", style={'text-align': 'center'}),
+                    html.Div(style={'display': 'inline-block', 'width': '100%', 'textAlign': 'center'}, children=[
+                        html.H4(title_3d_exp1),
+                        html.Img(id="lh-map-img1", src=f"data:image/png;base64,{map_lvf_exp1}", style={'width': '100%'})
                     ]),
-                    html.Div(style={'display': 'inline-block', 'width': '50%', 'textAlign': 'center'}, children=[
-                        html.H4("Average"),
-                        html.Img(id="rh-map-img1", src=f"data:image/png;base64,{density_lvf_exp2}", style={'width': '100%'})
+                    html.Div(style={'display': 'inline-block', 'width': '100%', 'textAlign': 'center'}, children=[
+                        html.H4(title_3d_comparison),
+                        html.Img(id="rh-map-img1", src=f"data:image/png;base64,{map_lvf_exp2}", style={'width': '100%'})
                     ])
                 ]),
                 html.Div(style={'flex': '1'}, children=[
-                    html.H3("Right visual field density maps", style={'text-align': 'center'}),
-                    html.Div(style={'display': 'inline-block', 'width': '50%', 'textAlign': 'center'}, children=[
-                        html.H4("Individualized"),
-                        html.Img(id="lh-map-img2", src=f"data:image/png;base64,{density_rvf_exp1}", style={'width': '100%'})
+                    html.H3("Right visual field binary maps", style={'text-align': 'center'}),
+                    html.Div(style={'display': 'inline-block', 'width': '100%', 'textAlign': 'center'}, children=[
+                        html.H4(title_3d_exp1),
+                        html.Img(id="lh-map-img2", src=f"data:image/png;base64,{map_rvf_exp1}", style={'width': '100%'})
                     ]),
-                    html.Div(style={'display': 'inline-block', 'width': '50%', 'textAlign': 'center'}, children=[
-                        html.H4("Average"),
-                        html.Img(id="rh-map-img2", src=f"data:image/png;base64,{density_rvf_exp2}", style={'width': '100%'})
+                    html.Div(style={'display': 'inline-block', 'width': '100%', 'textAlign': 'center'}, children=[
+                        html.H4(title_3d_comparison),
+                        html.Img(id="rh-map-img2", src=f"data:image/png;base64,{map_rvf_exp2}", style={'width': '100%'})
                     ])
                 ])
             ])
         ])
-    elif experiment == "experiment1":
+
+
+def create_phosphene_graphs(density_lvf_exp1, density_lvf_exp2, density_rvf_exp1, density_rvf_exp2, experiment):
+    if experiment == "experiment1":
         return html.Div(id="phosphene-graphs", style={'margin': 'auto'}, children=[
                 html.Div(style={'display': 'inline-block', 'width': '40%', 'textAlign': 'center'}, children=[
                     html.H4("Left visual field map"),
@@ -390,6 +338,40 @@ def create_phosphene_graphs(density_lvf_exp1, density_lvf_exp2, density_rvf_exp1
                     html.Img(id="rh-map-img", src=f"data:image/png;base64,{density_rvf_exp1}", style={'width': '100%'})
                 ])
             ])
+    else:
+        if experiment == "experiment2":
+            title_3d_exp1 = "Individualized"
+            title_3d_comparison = "Average"
+        else:
+            title_3d_exp1 = "3d"
+            title_3d_comparison = "Utah"
+        return html.Div(id="phosphene-graphs", style={'margin': 'auto'}, children=[
+            html.Div(style={'margin-bottom': '20px', 'width': '100%', 'display': 'flex', 'justify-content': 'space-between'}, children=[
+                html.Div(style={'flex': '1'}, children=[
+                    html.H3("Left visual field density maps", style={'text-align': 'center'}),
+                    html.Div(style={'display': 'inline-block', 'width': '50%', 'textAlign': 'center'}, children=[
+                        html.H4(title_3d_exp1),
+                        html.Img(id="lh-map-img1", src=f"data:image/png;base64,{density_lvf_exp1}", style={'width': '100%'})
+                    ]),
+                    html.Div(style={'display': 'inline-block', 'width': '50%', 'textAlign': 'center'}, children=[
+                        html.H4(title_3d_comparison),
+                        html.Img(id="rh-map-img1", src=f"data:image/png;base64,{density_lvf_exp2}", style={'width': '100%'})
+                    ])
+                ]),
+                html.Div(style={'flex': '1'}, children=[
+                    html.H3("Right visual field density maps", style={'text-align': 'center'}),
+                    html.Div(style={'display': 'inline-block', 'width': '50%', 'textAlign': 'center'}, children=[
+                        html.H4(title_3d_exp1),
+                        html.Img(id="lh-map-img2", src=f"data:image/png;base64,{density_rvf_exp1}", style={'width': '100%'})
+                    ]),
+                    html.Div(style={'display': 'inline-block', 'width': '50%', 'textAlign': 'center'}, children=[
+                        html.H4(title_3d_comparison),
+                        html.Img(id="rh-map-img2", src=f"data:image/png;base64,{density_rvf_exp2}", style={'width': '100%'})
+                    ])
+                ])
+            ])
+        ])
+
 
 @app.callback(
     [Output('n-arrays', 'children'),
@@ -402,9 +384,12 @@ def create_phosphene_graphs(density_lvf_exp1, density_lvf_exp2, density_rvf_exp1
     [Input('rh-array-dropdown', 'value')]
 )
 def update_graph(sel_experiment, subject, sel_arrays_lh, sel_arrays_rh):
-    print(sel_experiment)
-    lh_n_arrays = get_n_arrays(subject, "LH", "experiment1")
-    rh_n_arrays = get_n_arrays(subject, "RH", "experiment1")
+    if sel_experiment != "experiment3":
+        lh_n_arrays = get_n_arrays(subject, "LH", "experiment1")
+        rh_n_arrays = get_n_arrays(subject, "RH", "experiment1")
+    else:
+        lh_n_arrays = get_n_arrays(subject, "LH", "experiment3")
+        rh_n_arrays = get_n_arrays(subject, "RH", "experiment3")
 
     # general
     lh_brain = pd.read_csv(f"assets/{subject}/LH/brain_coords.csv")
@@ -414,32 +399,32 @@ def update_graph(sel_experiment, subject, sel_arrays_lh, sel_arrays_rh):
     lh_arrays_exp1 = pd.read_csv(f"assets/{subject}/LH/experiment1/arrays.csv")
     rh_arrays_exp1 = pd.read_csv(f"assets/{subject}/RH/experiment1/arrays.csv")
 
-    lh_arrays_exp2 = pd.read_csv(f"assets/{subject}/LH/experiment2/arrays.csv")
-    rh_arrays_exp2 = pd.read_csv(f"assets/{subject}/RH/experiment2/arrays.csv")
+    lh_arrays_comparison = pd.read_csv(f"assets/{subject}/LH/{sel_experiment}/arrays.csv")
+    rh_arrays_comparison = pd.read_csv(f"assets/{subject}/RH/{sel_experiment}/arrays.csv")
 
     fig_rh_epx1 = create_hem_graph(rh_brain, rh_arrays_exp1, hem="RH", sel_arrays=sel_arrays_rh)
     fig_lh_exp1 = create_hem_graph(lh_brain, lh_arrays_exp1, hem="LH", sel_arrays=sel_arrays_lh)
 
-    fig_rh_epx2 = create_hem_graph(rh_brain, rh_arrays_exp2, hem="RH", sel_arrays=sel_arrays_rh)
-    fig_lh_exp2 = create_hem_graph(lh_brain, lh_arrays_exp2, hem="LH", sel_arrays=sel_arrays_lh)
+    fig_rh_comparison = create_hem_graph(rh_brain, rh_arrays_comparison, hem="RH", sel_arrays=sel_arrays_rh)
+    fig_lh_comparison = create_hem_graph(lh_brain, lh_arrays_comparison, hem="LH", sel_arrays=sel_arrays_lh)
 
     map_lvf_exp1 = read_map(subject, "RH", "experiment1")
     map_rvf_exp1 = read_map(subject, "LH", "experiment1")
 
-    map_lvf_exp2 = read_map(subject, "RH", "experiment2")
-    map_rvf_exp2 = read_map(subject, "LH", "experiment2")
+    map_lvf_comparison = read_map(subject, "RH", sel_experiment)
+    map_rvf_comparison = read_map(subject, "LH", sel_experiment)
 
     density_lvf_exp1 = read_density_map(subject, "RH", "experiment1")
     density_rvf_exp1 = read_density_map(subject, "LH", "experiment1")
 
-    density_lvf_exp2 = read_density_map(subject, "RH", "experiment2")
-    density_rvf_exp2 = read_density_map(subject, "LH", "experiment2")
+    density_lvf_comparison = read_density_map(subject, "RH", sel_experiment)
+    density_rvf_comparison = read_density_map(subject, "LH", sel_experiment)
 
     return (
         create_n_arrays_dropdown(lh_n_arrays, rh_n_arrays, sel_arrays_lh, sel_arrays_rh),
-        create_hemisphere_graphs(fig_rh_epx1, fig_rh_epx2, fig_lh_exp1, fig_lh_exp2, sel_experiment),
-        create_map_graphs(map_lvf_exp1, map_lvf_exp2, map_rvf_exp1, map_rvf_exp2, sel_experiment),
-        create_phosphene_graphs(density_lvf_exp1, density_lvf_exp2, density_rvf_exp1, density_rvf_exp2, sel_experiment)
+        create_hemisphere_graphs(fig_rh_epx1, fig_rh_comparison, fig_lh_exp1, fig_lh_comparison, sel_experiment),
+        create_map_graphs(map_lvf_exp1, map_lvf_comparison, map_rvf_exp1, map_rvf_comparison, sel_experiment),
+        create_phosphene_graphs(density_lvf_exp1, density_lvf_comparison, density_rvf_exp1, density_rvf_comparison, sel_experiment)
     )
 
 
