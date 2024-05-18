@@ -416,5 +416,6 @@ def update_graph(sel_experiment, subject, sel_arrays_lh, sel_arrays_rh):
     )
 
 
+server = app.server
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run()
