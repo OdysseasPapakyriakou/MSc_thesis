@@ -9,7 +9,7 @@ import base64
 
 app = Dash(__name__)
 
-subs = sorted([int(sub) for sub in os.listdir("assets")])
+subs = sorted([int(file) for file in os.listdir("assets") if "pdf" not in file])
 experiments = [
     {"label": "Experiment 1: Multiple 3d arrays", "value": "experiment1"},
     {"label": "Experiment 2: Individual vs. average 3d", "value": "experiment2"},
@@ -71,7 +71,21 @@ app.layout = html.Div(style={'textAlign': 'center'}, children=[
         html.Br(),
         html.Img(id="uu-logo", src=f"data:image/png;base64,{enc_logo_img}", style={'width': '20%'}),
         html.P("Supervisor: Chris Klink", style={'font-size': '18px'}),
-        html.P("This is a page for visualizing my results", style={'font-size': '18px'}),
+        html.P(children=[
+            "This is a page for visualizing my results. "
+            "You can download a pdf copy of the thesis ", html.A(
+                "here.",
+                href="/assets/Odysseas_AI_thesis.pdf",
+                download="Odysseas_AI_thesis.pdf"
+            )
+        ], style={'font-size': '18px'}),
+        html.P(children=[
+            "And you can see all the code on my GitHub repo ", html.A(
+                "here.",
+                href="https://github.com/OdysseasPapakyriakou/MSc_thesis",
+                target="_blank"   # opens link in a new tab
+            )
+        ], style={'font-size': '18px', 'display': 'block'}),
         html.H3("Abstract:"),
         html.P(abstract_text, style={'width': '50%', 'margin': '0 auto', 'text-align': 'justify', 'font-size': '16px'}),
         html.Br()
@@ -81,7 +95,7 @@ app.layout = html.Div(style={'textAlign': 'center'}, children=[
             dcc.Dropdown(
                 id="experiments-dropdown",
                 options=experiments,
-                value=experiments[0]["value"],   # default value
+                value=experiments[2]["value"],   # default value
             )
         ]),
     html.Div([
@@ -104,7 +118,7 @@ app.layout = html.Div(style={'textAlign': 'center'}, children=[
                     {'label': '4', 'value': 4},
                     {'label': '5', 'value': 5}
                 ],
-                value=2  # default value
+                value=3  # default value
             )
         ]),
         html.Div(style={'flex': '50%', 'padding-left': '10px'}, children=[
@@ -118,12 +132,47 @@ app.layout = html.Div(style={'textAlign': 'center'}, children=[
                     {'label': '4', 'value': 4},
                     {'label': '5', 'value': 5}
                 ],
-                value=2  # default value
+                value=3  # default value
             )
         ])
     ]),
+    html.Br(), html.Br(),
+    html.P(children=[
+        "This interactive graph shows the array configurations and their "
+        "exact location in the primary visual cortex (V1) of the brain after using the Bayesian "
+        "optimization pipeline. The grey part is the whole grey matter area of each hemisphere, "
+        "while the light blue part signifies the target location, the primary visual cortex (V1). "
+        "The left hemisphere corresponds to vision in the right part of the visual field, "
+        "and vice versa for the right hemisphere. The Bayesian optimization algorithm "
+        "learns to place the arrays without any overlap in the target brain location, "
+        "in a way that maximizes the generated artificial vision. Most importantly, "
+        "the pipeline can be configured to specify the minimum distance between the arrays, "
+        "to simulate different array designs, to cover a specific part of the visual field, "
+        "and to include placement in different cortical visual areas."
+    ],
+        style={'width': '80%', 'margin': '0 auto', 'text-align': 'justify', 'font-size': '16px'}),
+    html.Br(),
     html.Div(id="hem-graphs", style={'width': '80%', 'margin': 'auto'}, children=[]),
+    html.Br(), html.Br(),
+    html.P(children=[
+        "When electrically stimulated, each array is able to generate artificial vision "
+        "that corresponds to a specific part of the visual field. The binary maps show the "
+        "part of the visual field corresponding to each array. "
+        "Because the algorithm maximizes the array placement serially, "
+        "the visual field coverage of each array decreases progressively."
+    ],
+        style={'width': '80%', 'margin': '0 auto', 'text-align': 'justify', 'font-size': '16px'}),
+    html.Br(),
     html.Div(id="map-graphs", style={'width': '80%', 'margin': 'auto'}, children=[]),
+    html.Br(), html.Br(),
+    html.P(children=[
+        "The last plots shows the estimated density of the artificially "
+        "generated vision. This is based on the density of neurons corresponding to that "
+        "brain location, as modelled in the retinotopy data. "
+        "Higher neural density allows for more detailed visual perception."
+    ],
+        style={'width': '80%', 'margin': '0 auto', 'text-align': 'justify', 'font-size': '16px'}),
+    html.Br(),
     html.Div(id="phosphene-graphs", style={'width': '70%', 'margin': 'auto'}, children=[]),
 
 ])
