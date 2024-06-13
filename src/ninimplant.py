@@ -1,18 +1,3 @@
-"""
-Created on Wed Sep 16 13:20:28 2020
-
-@author: Lozano & van Hoof
-
-implant.xyz_intersection
-implant.cart2pol
-implant.get_xyz
-implant.transform
-implant.create_cube
-implant.cube_from_points
-implant.get_translation
-implant.translate_cube
-"""
-
 import mathutils
 import numpy as np
 from math import radians

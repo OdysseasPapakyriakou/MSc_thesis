@@ -1,18 +1,3 @@
-'''
-Created on Wed Jul 13 08:20:28 2021
-
-@author: van Hoof & Lozano
-
-
-phos_elect.create_grid
-phos_elect.reposition_grid
-phos_elect.implant_grid
-phos_elect.get_phosphenes
-phos_elect.prf_to_phos
-phos_elect.normalized_uv
-
-'''
-
 import numpy as np
 import math
 from math import radians
