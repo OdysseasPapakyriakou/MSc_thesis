@@ -95,7 +95,7 @@ app.layout = html.Div(style={'textAlign': 'center'}, children=[
             dcc.Dropdown(
                 id="experiments-dropdown",
                 options=experiments,
-                value=experiments[2]["value"],   # default value
+                value=experiments[1]["value"],   # default value
             )
         ]),
     html.Div([
@@ -103,7 +103,7 @@ app.layout = html.Div(style={'textAlign': 'center'}, children=[
         dcc.Dropdown(
             id="subjects-dropdown",
             options=subs,
-            value=subs[0],   # default value
+            value=subs[2],   # default value 125525
         )
     ]),
     html.Div(id="n-arrays", style={'display': 'flex', 'justify-content': 'space-between'}, children=[
